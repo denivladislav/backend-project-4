@@ -20,7 +20,7 @@
     "testEnvironment": "node"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx}": [
+    "**/*.{js,jsx}": [
       "make test",
       "npx prettier --write --single-quote",
       "eslint --fix"
