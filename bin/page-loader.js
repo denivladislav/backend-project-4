@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import pageLoad from "../src";
+import pageLoad from '../src/index.js';
 
-const program =  new Command();
+const program = new Command();
 
 program
   .name('page-loader')
-  .description("Downloads an internet page and saves it to a directory")
+  .description('Downloads an internet page and saves it to a directory')
   .version('1.0.0', '-V, --version', 'output the version number');
 
 program
-  .argument("<url>")
+  .argument('<url>')
   .option('-o, --output [dir]', 'output dir', process.cwd())
   .action((url, { output }) => {
-    pageLoad({url, dirpath: output });
-  });   
+    pageLoad({ url, dirpath: output });
+  });
 
 program.parse();

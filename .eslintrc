@@ -2,26 +2,24 @@
   "env": {
       "browser": true,
       "es2021": true,
-      "node": true
+      "node": true,
+      "jest": true
   },
   "extends": [ 
       "eslint:recommended",
-      "plugin:react/recommended",
       "prettier"
   ],
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
-      "ecmaFeatures": {
-          "jsx": true
-      },
       "ecmaVersion": 12,
-      "sourceType": "module"
+      "sourceType": "module",
+      "requireConfigFile": false
   },
   "plugins": [
       "prettier"
   ],
   "rules": {
-      "prettier/prettier": "error",
+      "prettier/prettier": "warn",
       "no-unused-vars": "warn"
   }
 }
