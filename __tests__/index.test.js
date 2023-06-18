@@ -1,17 +1,42 @@
 import { beforeEach } from '@jest/globals';
 import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import prettier from 'prettier';
 import nock from 'nock';
-import path from 'path';
 import os from 'os';
 import pageLoad from '../src/index.js';
+import {
+  getFilename,
+  getImageFilename,
+  getResourcesDirname,
+} from '../src/utils/utils.js';
 
-const URL_HOST = 'https://user:pass@sub.example.com:8080';
-const URL_PATHNAME_QUERY_HASH = '/p/a/t/h?query=string#hash';
-const URL = `${URL_HOST}${URL_PATHNAME_QUERY_HASH}`;
-const URL_FILENAME = 'sub-example-com-8080-p-a-t-h-query-string-hash.html';
-const RESPONSE_DATA = '<!DOCTYPE>';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-nock(URL_HOST).get(URL_PATHNAME_QUERY_HASH).reply(200, RESPONSE_DATA);
+const getFixturePath = (filename) =>
+  path.join(__dirname, '..', '__fixtures__', filename);
+
+const readFixture = (filename) =>
+  readFileSync(getFixturePath(filename), 'utf-8');
+
+const htmlPage = readFixture('htmlPage.html');
+const htmlPageResult = readFixture('htmlPageResult.html');
+const img = readFixture('image.png');
+
+const url = 'https://ru.hexlet.io/courses';
+const imgSrc = '/assets/professions/nodejs.png';
+
+const currentUrl = new URL(url);
+const { protocol, host, pathname } = currentUrl;
+const filename = getFilename(url);
+const resourcesDirname = getResourcesDirname(url);
+const imageFilename = getImageFilename(host, imgSrc);
+
+nock(`${protocol}//${host}`).get(pathname).reply(200, htmlPage);
+nock(`${protocol}//${host}`).get(imgSrc).reply(200, img);
 
 let currentDirpath;
 
@@ -20,10 +45,23 @@ beforeEach(async () => {
 });
 
 test('successful load', async () => {
-  await pageLoad({ url: URL, dirpath: currentDirpath });
-  const filecontent = await readFile(
-    `${currentDirpath}/${URL_FILENAME}`,
+  await pageLoad({ url, dirpath: currentDirpath });
+
+  const htmlFilecontent = await readFile(
+    path.join(currentDirpath, filename),
     'utf-8'
   );
-  expect(filecontent).toEqual(RESPONSE_DATA);
+  const formattedFilecontent = prettier.format(htmlFilecontent, {
+    parser: 'html',
+  });
+  const formattedHtmlPageResult = prettier.format(htmlPageResult, {
+    parser: 'html',
+  });
+  expect(formattedFilecontent).toEqual(formattedHtmlPageResult);
+
+  const imageFilecontent = await readFile(
+    path.join(currentDirpath, resourcesDirname, imageFilename),
+    'utf-8'
+  );
+  expect(imageFilecontent).toEqual(img);
 });

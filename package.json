@@ -37,6 +37,7 @@
     "eslint": "^8.42.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-html": "^7.1.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.0",
@@ -48,6 +49,8 @@
   "dependencies": {
     "@babel/eslint-parser": "^7.22.5",
     "axios": "^1.4.0",
-    "commander": "^10.0.1"
+    "cheerio": "^1.0.0-rc.12",
+    "commander": "^10.0.1",
+    "lodash-es": "^4.17.21"
   }
 }
