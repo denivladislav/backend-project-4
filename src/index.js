@@ -2,21 +2,19 @@ import axios from 'axios';
 import path from 'path';
 import { writeFile, stat, mkdir } from 'node:fs/promises';
 import {
-  getFilename,
-  getHost,
-  getImageFilename,
-  getResourcesDirname,
+  getHostFromUrl,
+  getNameFromPath,
+  getNameFromUrl,
 } from './utils/utils.js';
-import { trim } from 'lodash-es';
 import * as cheerio from 'cheerio';
 
 const pageLoad = ({ url, dirpath }) => {
   const imageUrls = [];
   const imageFilenames = [];
 
-  const host = getHost(url);
-  const resourcesDirname = getResourcesDirname(url);
-  const HTMLPageFilename = getFilename(url);
+  const host = getHostFromUrl(url);
+  const HTMLPageFilename = getNameFromUrl(url, '.html');
+  const resourcesDirname = getNameFromUrl(url, '_files');
 
   return stat(dirpath)
     .then((stats) => {
@@ -30,12 +28,12 @@ const pageLoad = ({ url, dirpath }) => {
     .then((response) => {
       const $ = cheerio.load(response.data);
       $('img').each(function () {
-        const imageSrc = trim($(this).attr('src'), '/');
+        const imageSrc = $(this).attr('src');
         const imageUrl = imageSrc.startsWith('http')
           ? imageSrc
           : `https://${path.join(host, imageSrc)}`;
 
-        const imageFilename = getImageFilename(host, imageSrc);
+        const imageFilename = getNameFromPath(imageSrc, host);
         $(this).attr('src', path.join(resourcesDirname, imageFilename));
         imageUrls.push(imageUrl);
         imageFilenames.push(imageFilename);
