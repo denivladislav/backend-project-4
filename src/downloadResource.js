@@ -3,7 +3,7 @@ import { getNameFromPath } from './utils/utils.js';
 import axios from 'axios';
 import { writeFile } from 'node:fs/promises';
 
-export const download = ({
+export const downloadResource = ({
   $,
   tag,
   attr,
@@ -23,6 +23,7 @@ export const download = ({
       return;
     }
     const { href, host, pathname, origin } = new URL(urlFromAttr, mainOrigin);
+    // only local links and scripts are downloaded
     if (!isImg && origin !== mainOrigin) {
       return;
     }

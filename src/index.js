@@ -3,11 +3,12 @@ import path from 'path';
 import { writeFile, stat, mkdir } from 'node:fs/promises';
 import { getNameFromUrl, getOriginFromUrl } from './utils/utils.js';
 import * as cheerio from 'cheerio';
-import { download } from './download.js';
+import { downloadResource } from './downloadResource.js';
 
 const pageLoad = ({ url, dirpath }) => {
   let $ = null;
-  const tags = [
+
+  const downloadedResourcesTags = [
     { tag: 'img', attr: 'src' },
     { tag: 'link', attr: 'href' },
     { tag: 'script', attr: 'src' },
@@ -32,8 +33,15 @@ const pageLoad = ({ url, dirpath }) => {
     })
     .then(() =>
       Promise.all(
-        tags.map(({ tag, attr }) =>
-          download({ $, tag, attr, mainOrigin, dirpath, resourcesDirname })
+        downloadedResourcesTags.map(({ tag, attr }) =>
+          downloadResource({
+            $,
+            tag,
+            attr,
+            mainOrigin,
+            dirpath,
+            resourcesDirname,
+          })
         )
       )
     )
