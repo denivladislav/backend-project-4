@@ -1,18 +1,19 @@
 import axios from 'axios';
 import path from 'path';
 import { writeFile, stat, mkdir } from 'node:fs/promises';
-import {
-  getHostFromUrl,
-  getNameFromPath,
-  getNameFromUrl,
-} from './utils/utils.js';
+import { getNameFromUrl, getOriginFromUrl } from './utils/utils.js';
 import * as cheerio from 'cheerio';
+import { download } from './download.js';
 
 const pageLoad = ({ url, dirpath }) => {
-  const imageUrls = [];
-  const imageFilenames = [];
+  let $ = null;
+  const tags = [
+    { tag: 'img', attr: 'src' },
+    { tag: 'link', attr: 'href' },
+    { tag: 'script', attr: 'src' },
+  ];
 
-  const host = getHostFromUrl(url);
+  const mainOrigin = getOriginFromUrl(url);
   const HTMLPageFilename = getNameFromUrl(url, '.html');
   const resourcesDirname = getNameFromUrl(url, '_files');
 
@@ -26,41 +27,17 @@ const pageLoad = ({ url, dirpath }) => {
     })
     .then(() => axios.get(url))
     .then((response) => {
-      const $ = cheerio.load(response.data);
-      $('img').each(function () {
-        const imageSrc = $(this).attr('src');
-        const imageUrl = imageSrc.startsWith('http')
-          ? imageSrc
-          : `https://${path.join(host, imageSrc)}`;
-
-        const imageFilename = getNameFromPath(imageSrc, host);
-        $(this).attr('src', path.join(resourcesDirname, imageFilename));
-        imageUrls.push(imageUrl);
-        imageFilenames.push(imageFilename);
-      });
-
-      return Promise.all([
-        writeFile(`${path.join(dirpath, HTMLPageFilename)}`, $.html()),
-        mkdir(`${path.join(dirpath, resourcesDirname)}`),
-      ]);
+      $ = cheerio.load(response.data);
+      return mkdir(path.join(dirpath, resourcesDirname));
     })
     .then(() =>
       Promise.all(
-        imageUrls.map((imageUrl) =>
-          axios.get(imageUrl, { responseType: 'arraybuffer' })
+        tags.map(({ tag, attr }) =>
+          download({ $, tag, attr, mainOrigin, dirpath, resourcesDirname })
         )
       )
     )
-    .then((imageResponses) =>
-      Promise.all(
-        imageResponses.map((imageResponse, index) =>
-          writeFile(
-            path.join(dirpath, resourcesDirname, imageFilenames[index]),
-            imageResponse.data
-          )
-        )
-      )
-    )
+    .then(() => writeFile(`${path.join(dirpath, HTMLPageFilename)}`, $.html()))
     .catch((error) => {
       console.error(error);
     });

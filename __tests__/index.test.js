@@ -30,16 +30,22 @@ const img = readFixture('image.png');
 
 const url = 'https://ru.hexlet.io/courses';
 const imgSrc = '/assets/professions/nodejs.png';
+const links = ['/courses', '/assets/application.css'];
+const scriptSrc = '/packs/js/runtime.js';
 
 const currentUrl = new URL(url);
-const { protocol, host, pathname } = currentUrl;
+const { origin, pathname } = currentUrl;
 
 const filename = 'ru-hexlet-io-courses.html';
 const resourcesDirname = 'ru-hexlet-io-courses_files';
 const imageFilename = 'ru-hexlet-io-assets-professions-nodejs.png';
 
-nock(`${protocol}//${host}`).get(pathname).reply(200, htmlPage);
-nock(`${protocol}//${host}`).get(imgSrc).reply(200, img);
+nock(origin).get(pathname).reply(200, htmlPage);
+nock(origin).get(imgSrc).reply(200, img);
+links.forEach((link) => {
+  nock(origin).get(link).reply(200);
+});
+nock(origin).get(scriptSrc).reply(200);
 
 let currentDirpath;
 
