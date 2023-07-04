@@ -4,6 +4,9 @@ import { writeFile, stat, mkdir } from 'node:fs/promises';
 import { getNameFromUrl, getOriginFromUrl } from './utils/utils.js';
 import * as cheerio from 'cheerio';
 import { downloadResource } from './downloadResource.js';
+import Debug from 'debug';
+
+const debug = Debug('info');
 
 const pageLoad = ({ url, dirpath }) => {
   let $ = null;
@@ -26,13 +29,18 @@ const pageLoad = ({ url, dirpath }) => {
 
       return Promise.resolve();
     })
-    .then(() => axios.get(url))
+    .then(() => {
+      debug(`get url ${url}`);
+      return axios.get(url);
+    })
     .then((response) => {
+      debug('load html');
       $ = cheerio.load(response.data);
       return mkdir(path.join(dirpath, resourcesDirname));
     })
-    .then(() =>
-      Promise.all(
+    .then(() => {
+      debug('downloading resouces');
+      return Promise.all(
         downloadedResourcesTags.map(({ tag, attr }) =>
           downloadResource({
             $,
@@ -43,9 +51,26 @@ const pageLoad = ({ url, dirpath }) => {
             resourcesDirname,
           })
         )
-      )
-    )
-    .then(() => writeFile(`${path.join(dirpath, HTMLPageFilename)}`, $.html()))
+      );
+    })
+    .then(() => {
+      debug('writefile');
+      return writeFile(`${path.join(dirpath, HTMLPageFilename)}`, $.html());
+    })
+    .then(() => {
+      console.log(
+        `Page was successfully downloaded into ${path.join(
+          dirpath,
+          HTMLPageFilename
+        )}`
+      );
+      console.log(
+        `Resources were successfully downloaded into ${path.join(
+          dirpath,
+          resourcesDirname
+        )}`
+      );
+    })
     .catch((error) => {
       console.error(error);
     });
