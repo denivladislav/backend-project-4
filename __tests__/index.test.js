@@ -1,5 +1,5 @@
-import { beforeEach } from '@jest/globals';
-import { mkdtemp } from 'node:fs/promises';
+import { afterEach, beforeEach } from '@jest/globals';
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -40,31 +40,68 @@ const filename = 'ru-hexlet-io-courses.html';
 const resourcesDirname = 'ru-hexlet-io-courses_files';
 const imageFilename = 'ru-hexlet-io-assets-professions-nodejs.png';
 
-nock(origin).get(pathname).reply(200, htmlPage);
-nock(origin).get(imgSrc).reply(200, img);
-links.forEach((link) => {
-  nock(origin).get(link).reply(200);
-});
-nock(origin).get(scriptSrc).reply(200);
-
 let currentDirpath;
 
 beforeEach(async () => {
   currentDirpath = await mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
 });
 
-test('successful load', async () => {
-  await pageLoad({ url, dirpath: currentDirpath });
+afterEach(() => nock.cleanAll());
 
-  const htmlFileContent = readFile(path.join(currentDirpath, filename));
-  const formatizedFileContent = formatizeHTMLFixture(htmlFileContent);
-  const formatizedHtmlPageResult = formatizeHTMLFixture(htmlPageResult);
+describe('fails', () => {
+  test('dirpath does not exist', async () => {
+    await expect(pageLoad({ url, dirpath: 'aaa' })).rejects.toThrow(
+      'no such file or directory'
+    );
+  });
 
-  expect(formatizedFileContent).toEqual(formatizedHtmlPageResult);
+  test('dirpath is not a directory', async () => {
+    const filepath = path.join(currentDirpath, 'file');
+    await writeFile(filepath, 'aaaa');
 
-  const imageFilecontent = readFile(
-    path.join(currentDirpath, resourcesDirname, imageFilename)
-  );
+    await expect(pageLoad({ url, dirpath: filepath })).rejects.toThrow(
+      'not a directory'
+    );
+  });
 
-  expect(imageFilecontent).toEqual(img);
+  test('directory already exists', async () => {
+    await mkdir(path.join(currentDirpath, resourcesDirname));
+
+    await expect(pageLoad({ url, dirpath: currentDirpath })).rejects.toThrow(
+      'already exists'
+    );
+  });
+
+  test('network error', async () => {
+    nock(origin).get(pathname).reply(404);
+
+    await expect(pageLoad({ url, dirpath: currentDirpath })).rejects.toThrow(
+      '404'
+    );
+  });
+});
+
+describe('success', () => {
+  test('successful load', async () => {
+    nock(origin).get(pathname).reply(200, htmlPage);
+    nock(origin).get(imgSrc).reply(200, img);
+    links.forEach((link) => {
+      nock(origin).get(link).reply(200);
+    });
+    nock(origin).get(scriptSrc).reply(200);
+
+    await pageLoad({ url, dirpath: currentDirpath });
+
+    const htmlFileContent = readFile(path.join(currentDirpath, filename));
+    const formatizedFileContent = formatizeHTMLFixture(htmlFileContent);
+    const formatizedHtmlPageResult = formatizeHTMLFixture(htmlPageResult);
+
+    expect(formatizedFileContent).toEqual(formatizedHtmlPageResult);
+
+    const imageFilecontent = readFile(
+      path.join(currentDirpath, resourcesDirname, imageFilename)
+    );
+
+    expect(imageFilecontent).toEqual(img);
+  });
 });

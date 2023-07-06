@@ -10,6 +10,7 @@ export const downloadResource = ({
   mainOrigin,
   dirpath,
   resourcesDirname,
+  debug,
 }) => {
   const urls = [];
   const filenames = [];
@@ -33,15 +34,31 @@ export const downloadResource = ({
     filenames.push(filename);
   });
 
-  return Promise.all(urls.map((url) => axios.get(url, { responseType }))).then(
-    (responses) =>
-      Promise.all(
-        responses.map((response, index) =>
+  const getResourcePromises = urls.map((url) => {
+    debug(`loading resource: ${url}`);
+    return axios
+      .get(url, { responseType })
+      .then((response) => {
+        debug(`resource downloaded: ${url}`);
+        return { result: 'success', value: response };
+      })
+      .catch((error) => {
+        debug(`resource download failed: ${url}`);
+        console.error(`Couldn't download resource: ${url}`);
+        return { result: 'error', value: error };
+      });
+  });
+
+  return Promise.all(getResourcePromises).then((responses) =>
+    Promise.all(
+      responses
+        .filter((response) => response.result === 'success')
+        .map((response, index) =>
           writeFile(
             path.join(dirpath, resourcesDirname, filenames[index]),
-            response.data
+            response.value.data
           )
         )
-      )
+    )
   );
 };
