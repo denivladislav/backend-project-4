@@ -10,6 +10,7 @@ import Debug from 'debug';
 const debug = Debug('info');
 
 const pageLoad = (url, dirpath) => {
+  console.log('dirpath', dirpath);
   let $ = null;
 
   const resourcesTagsToDownload = [

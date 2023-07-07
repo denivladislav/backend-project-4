@@ -14,7 +14,7 @@ program
 program
   .argument('<url>')
   .option('-o, --output [dir]', 'output dir', process.cwd())
-  .action((url, { output }) => {
+  .action((url, { output }) =>
     pageLoad(url, output)
       .then(({ HTMLPageDirpath, resourcesDirpath }) => {
         console.log(`Page was downloaded into ${HTMLPageDirpath}`);
@@ -24,7 +24,7 @@ program
         console.error(error);
         console.log(`Exit with code: 1`);
         process.exit(1);
-      });
-  });
+      })
+  );
 
 program.parse();
