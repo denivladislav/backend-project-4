@@ -60,7 +60,7 @@ const pageLoad = (url, dirpath) => {
     })
     .then(() => {
       debug('write html');
-      return writeFile(HTMLPageDirpath, $.html());
+      return writeFile(HTMLPageDirpath, $.html(), { encoding: 'utf-8' });
     })
     .then(() => ({ HTMLPageDirpath, resourcesDirpath }))
     .catch((error) => {

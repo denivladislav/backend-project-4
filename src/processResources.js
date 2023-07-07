@@ -48,7 +48,8 @@ export const processResources = ({
               console.log('response.data', `_${response.data}_`);
               return writeFile(
                 path.join(dirpath, resourcesDirname, filenames[index]),
-                response.data
+                response.data,
+                { encoding: 'utf-8' }
               );
             })
             .catch(() => {
