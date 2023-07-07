@@ -2,6 +2,7 @@ import path from 'path';
 import { getNameFromPath } from './utils/utils.js';
 import axios from 'axios';
 import { writeFile } from 'node:fs/promises';
+import Listr from 'listr';
 
 export const downloadResource = ({
   $,
@@ -34,31 +35,31 @@ export const downloadResource = ({
     filenames.push(filename);
   });
 
-  const getResourcePromises = urls.map((url) => {
-    debug(`loading resource: ${url}`);
-    return axios
-      .get(url, { responseType })
-      .then((response) => {
-        debug(`resource downloaded: ${url}`);
-        return { result: 'success', value: response };
-      })
-      .catch((error) => {
-        debug(`resource download failed: ${url}`);
-        console.error(`Couldn't download resource: ${url}`);
-        return { result: 'error', value: error };
-      });
-  });
-
-  return Promise.all(getResourcePromises).then((responses) =>
-    Promise.all(
-      responses
-        .filter((response) => response.result === 'success')
-        .map((response, index) =>
-          writeFile(
-            path.join(dirpath, resourcesDirname, filenames[index]),
-            response.value.data
-          )
-        )
-    )
+  const tasks = new Listr(
+    urls.map((url, index) => {
+      debug(`loading resource: ${url}`);
+      return {
+        title: `Downloading resource: ${url}`,
+        task: () =>
+          axios
+            .get(url, { responseType })
+            .then((response) => {
+              debug(`resource downloaded: ${url}`);
+              return writeFile(
+                path.join(dirpath, resourcesDirname, filenames[index]),
+                response.data
+              );
+            })
+            .catch(() => {
+              return Promise.reject({ url });
+            }),
+      };
+    }),
+    { concurrent: true }
   );
+
+  return tasks.run().catch(({ url }) => {
+    debug(`resource download failed: ${url}`);
+    console.error(`Couldn't download resource: ${url}`);
+  });
 };
