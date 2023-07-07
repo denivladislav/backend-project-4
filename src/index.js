@@ -9,7 +9,7 @@ import Debug from 'debug';
 
 const debug = Debug('info');
 
-const pageLoad = (url, dirpath) => {
+const pageLoad = (url, dirpath = process.cwd()) => {
   console.log('dirpath', dirpath);
   let $ = null;
 
