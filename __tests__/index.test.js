@@ -51,7 +51,7 @@ afterEach(() => nock.cleanAll());
 describe('fails', () => {
   test('dirpath does not exist', async () => {
     await expect(pageLoad({ url, dirpath: 'aaa' })).rejects.toThrow(
-      'no such file or directory'
+      'No such file or directory'
     );
   });
 
@@ -60,7 +60,7 @@ describe('fails', () => {
     await writeFile(filepath, 'aaaa');
 
     await expect(pageLoad({ url, dirpath: filepath })).rejects.toThrow(
-      'not a directory'
+      'Is not a directory'
     );
   });
 
