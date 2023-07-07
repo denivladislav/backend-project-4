@@ -47,7 +47,7 @@ export const processResources = ({
               debug(`resource downloaded: ${url}`);
               return writeFile(
                 path.join(dirpath, resourcesDirname, filenames[index]),
-                response.data
+                response.data.trim()
               );
             })
             .catch(() => {
