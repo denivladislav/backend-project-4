@@ -25,6 +25,5 @@ program
         console.log(`Exit with code: 1`);
         process.exit(1);
       })
-  );
-
-program.parse();
+  )
+  .parse(process.argv);
