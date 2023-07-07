@@ -50,7 +50,7 @@ afterEach(() => nock.cleanAll());
 
 describe('fails', () => {
   test('dirpath does not exist', async () => {
-    await expect(pageLoad({ url, dirpath: 'aaa' })).rejects.toThrow(
+    await expect(pageLoad(url, 'aaa')).rejects.toThrow(
       'No such file or directory'
     );
   });
@@ -59,15 +59,13 @@ describe('fails', () => {
     const filepath = path.join(currentDirpath, 'file');
     await writeFile(filepath, 'aaaa');
 
-    await expect(pageLoad({ url, dirpath: filepath })).rejects.toThrow(
-      'Is not a directory'
-    );
+    await expect(pageLoad(url, filepath)).rejects.toThrow('Is not a directory');
   });
 
   test('directory already exists', async () => {
     await mkdir(path.join(currentDirpath, resourcesDirname));
 
-    await expect(pageLoad({ url, dirpath: currentDirpath })).rejects.toThrow(
+    await expect(pageLoad(url, currentDirpath)).rejects.toThrow(
       'already exists'
     );
   });
@@ -75,9 +73,7 @@ describe('fails', () => {
   test('network error', async () => {
     nock(origin).get(pathname).reply(404);
 
-    await expect(pageLoad({ url, dirpath: currentDirpath })).rejects.toThrow(
-      '404'
-    );
+    await expect(pageLoad(url, currentDirpath)).rejects.toThrow('404');
   });
 });
 
@@ -90,7 +86,7 @@ describe('success', () => {
     });
     nock(origin).get(scriptSrc).reply(200);
 
-    await pageLoad({ url, dirpath: currentDirpath });
+    await pageLoad(url, currentDirpath);
 
     const htmlFileContent = readFile(path.join(currentDirpath, filename));
     const formatizedFileContent = formatizeHTMLFixture(htmlFileContent);
