@@ -27,9 +27,11 @@ const readFile = (path) => readFileSync(path, 'utf-8');
 const htmlPage = readFixture('htmlPage.html');
 const htmlPageResult = readFixture('htmlPageResult.html');
 const img = readFixture('image.png');
+const css = readFixture('style.css');
 
 const url = 'https://ru.hexlet.io/courses';
 const imgSrc = '/assets/professions/nodejs.png';
+const cssSrc = '/assets/application.css';
 const links = ['/courses', '/assets/application.css'];
 const scriptSrc = '/packs/js/runtime.js';
 
@@ -39,6 +41,7 @@ const { origin, pathname } = currentUrl;
 const filename = 'ru-hexlet-io-courses.html';
 const resourcesDirname = 'ru-hexlet-io-courses_files';
 const imageFilename = 'ru-hexlet-io-assets-professions-nodejs.png';
+const cssFilename = 'ru-hexlet-io-assets-application.css';
 
 let currentDirpath;
 
@@ -81,6 +84,7 @@ describe('success', () => {
   test('successful load', async () => {
     nock(origin).get(pathname).reply(200, htmlPage);
     nock(origin).get(imgSrc).reply(200, img);
+    nock(origin).get(cssSrc).reply(200, css);
     links.forEach((link) => {
       nock(origin).get(link).reply(200);
     });
@@ -97,7 +101,11 @@ describe('success', () => {
     const imageFilecontent = readFile(
       path.join(currentDirpath, resourcesDirname, imageFilename)
     );
+    const cssFilecontent = readFile(
+      path.join(currentDirpath, resourcesDirname, cssFilename)
+    );
 
     expect(imageFilecontent).toEqual(img);
+    expect(cssFilecontent).toEqual(css);
   });
 });

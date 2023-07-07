@@ -17,7 +17,6 @@ export const processResources = ({
 
   resourcesTagsToDownload.forEach((tag) => {
     const isImg = tag === 'img';
-    const responseType = isImg ? 'arraybuffer' : 'json';
     $(tag.tag).each(function () {
       const urlFromAttr = $(this).attr(tag.attr);
       if (!urlFromAttr) {
@@ -30,22 +29,21 @@ export const processResources = ({
       }
       const filename = getNameFromPath(path.join(host, pathname));
       $(this).attr(tag.attr, path.join(resourcesDirname, filename));
-      urls.push({ url: href, responseType });
+      urls.push(href);
       filenames.push(filename);
     });
   });
 
   const tasks = new Listr(
-    urls.map(({ url, responseType }, index) => {
+    urls.map((url, index) => {
       debug(`loading resource: ${url}`);
       return {
         title: `Downloading resource: ${url}`,
         task: () =>
           axios
-            .get(url, { responseType })
+            .get(url, { responseType: 'arraybuffer' })
             .then((response) => {
               debug(`resource downloaded: ${url}`);
-              console.log('response.data', `_${response.data}_`);
               return writeFile(
                 path.join(dirpath, resourcesDirname, filenames[index]),
                 response.data,
