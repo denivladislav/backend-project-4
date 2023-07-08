@@ -22,7 +22,6 @@
   "lint-staged": {
     "**/*.{js,jsx}": [
       "make test",
-      "npx prettier --write --single-quote",
       "eslint --fix"
     ]
   },

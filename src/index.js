@@ -1,11 +1,10 @@
 import axios from 'axios';
 import path from 'path';
-
 import { writeFile, stat, mkdir } from 'node:fs/promises';
-import { getNameFromUrl, getOriginFromUrl } from './utils/utils.js';
 import * as cheerio from 'cheerio';
-import { processResources } from './processResources.js';
 import Debug from 'debug';
+import { getNameFromUrl, getOriginFromUrl } from './utils/utils.js';
+import processResources from './processResources.js';
 
 const debug = Debug('info');
 
@@ -70,7 +69,7 @@ const pageLoad = (url, dirpath = process.cwd()) => {
         customError = new Error(`No such file or directory '${error.path}'`);
       } else if (error.errno === -17) {
         customError = new Error(
-          `File or directory already exists '${error.path}'`
+          `File or directory already exists '${error.path}'`,
         );
       } else if (error.dirpathIsNotDirectory) {
         customError = new Error(`Is not a directory '${dirpath}'`);

@@ -6,23 +6,20 @@ import { fileURLToPath } from 'url';
 import prettier from 'prettier';
 import nock from 'nock';
 import os from 'os';
-import pageLoad from '../src/index.js';
+import pageLoad from '../src/index';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const getFixturePath = (filename) =>
-  path.join(__dirname, '..', '__fixtures__', filename);
+const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 
-const readFixture = (filename) =>
-  readFileSync(getFixturePath(filename), 'utf-8');
+const readFixture = (filename) => readFileSync(getFixturePath(filename), 'utf-8');
 
-const formatizeHTMLFixture = (htmlFixtureContent) =>
-  prettier.format(htmlFixtureContent, {
-    parser: 'html',
-  });
+const formatizeHTMLFixture = (htmlFixtureContent) => prettier.format(htmlFixtureContent, {
+  parser: 'html',
+});
 
-const readFile = (path) => readFileSync(path, 'utf-8');
+const readFile = (filepath) => readFileSync(filepath, 'utf-8');
 
 const htmlPage = readFixture('htmlPage.html');
 const htmlPageResult = readFixture('htmlPageResult.html');
@@ -54,7 +51,7 @@ afterEach(() => nock.cleanAll());
 describe('fails', () => {
   test('dirpath does not exist', async () => {
     await expect(pageLoad(url, 'aaa')).rejects.toThrow(
-      'No such file or directory'
+      'No such file or directory',
     );
   });
 
@@ -69,7 +66,7 @@ describe('fails', () => {
     await mkdir(path.join(currentDirpath, resourcesDirname));
 
     await expect(pageLoad(url, currentDirpath)).rejects.toThrow(
-      'already exists'
+      'already exists',
     );
   });
 
@@ -99,10 +96,10 @@ describe('success', () => {
     expect(formatizedFileContent).toEqual(formatizedHtmlPageResult);
 
     const imageFilecontent = readFile(
-      path.join(currentDirpath, resourcesDirname, imageFilename)
+      path.join(currentDirpath, resourcesDirname, imageFilename),
     );
     const cssFilecontent = readFile(
-      path.join(currentDirpath, resourcesDirname, cssFilename)
+      path.join(currentDirpath, resourcesDirname, cssFilename),
     );
 
     expect(imageFilecontent).toEqual(img);
