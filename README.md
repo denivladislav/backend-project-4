@@ -29,6 +29,4 @@ $ make test-debug
 
 ## Credits
 This utility was created during my <a href="https://en.hexlet.io/pages/about">Hexlet</a> Backend-developer" education course.
-<a href=https://en.hexlet.io/pages/about>
-  <img src="https://pbs.twimg.com/profile_images/1104765658829602816/7wuM7zyo_400x400.png" alt="Hexlet logo" width="200" length="200">
-</a>
+g

@@ -15,17 +15,14 @@ program
 program
   .argument('<url>')
   .option('-o, --output [dir]', 'output dir', process.cwd())
-  .action((url, options) => {
-    console.log('options', options);
-    return pageLoad(url, options.output)
-      .then(({ HTMLPageDirpath, resourcesDirpath }) => {
-        console.log(`Page was downloaded into ${HTMLPageDirpath}`);
-        console.log(`Resources were downloaded into ${resourcesDirpath}`);
-      })
-      .catch((error) => {
-        console.error(error);
-        console.log('Exit with code: 1');
-        process.exit(1);
-      });
-  })
+  .action((url, options) => pageLoad(url, options.output)
+    .then(({ HTMLPageDirpath, resourcesDirpath }) => {
+      console.log(`Page was downloaded into ${HTMLPageDirpath}`);
+      console.log(`Resources were downloaded into ${resourcesDirpath}`);
+    })
+    .catch((error) => {
+      console.error(error);
+      console.log('Exit with code: 1');
+      process.exit(1);
+    }))
   .parse(process.argv);

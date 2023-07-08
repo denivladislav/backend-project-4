@@ -9,7 +9,6 @@ import processResources from './processResources.js';
 const debug = Debug('info');
 
 const pageLoad = (url, dirpath = process.cwd()) => {
-  console.log('dirpath', dirpath);
   let $ = null;
 
   const resourcesTagsToDownload = [
