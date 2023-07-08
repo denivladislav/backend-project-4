@@ -28,5 +28,4 @@ $ make test-debug
 ```
 
 ## Credits
-This utility was created during my <a href="https://en.hexlet.io/pages/about">Hexlet</a> Backend-developer" education course.
-g
+This utility was created during my <a href="https://en.hexlet.io/pages/about">Hexlet</a> "Backend-developer" education course.
